@@ -27,7 +27,7 @@
       <h3>To-Do List</h3>
       <hr />
       <!-- Add Button -->
-      <form id="add-item" class="row row-cols-auto align-items-center">
+      <div id="add-item" class="row row-cols-auto align-items-center">
         <div class="flex-grow-1">
           <input
             class="input-entry"
@@ -36,16 +36,18 @@
             required
           />
         </div>
-        <button type="submit" class="btn btn-success">add</button>
-      </form>
+        <button class="btn btn-success">add</button>
+      </div>
       <hr />
       <!-- List of Items -->
-      <div id="list" class="row row-cols-auto align-items-center py-2">
-        <div class="flex-grow-1 item">
-          <input type="checkbox" />
-          <span class="item-name">Laundry</span>
-        </div>
-        <button class="btn btn-danger">delete</button>
+      <div id="list">
+        <!-- <div class="row row-cols-auto align-items-center py-2">
+          <div class="flex-grow-1 item">
+            <input type="checkbox" />
+            <span data-id="93" class="item-name">Laundry</span>
+          </div>
+          <button class="btn btn-danger remove">delete</button>
+        </div> -->
       </div>
       <hr />
       <div class="row row-cols-auto justify-content-end">
