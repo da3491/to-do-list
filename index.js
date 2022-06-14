@@ -6,37 +6,39 @@
 // {success:true,id:426}
 
 $(document).ready(function () {
-  console.log("Document loaded");
+  // Adding html to display JSON data
+  var renderItem = function (item) {
+    $("#list").append(
+      "<div class='row row-cols-auto align-items-center py-2'>" +
+        "<div class='flex-grow-1 item'>" +
+        "<input data-id='" +
+        item.id +
+        "' type='checkbox' class='check-item' " +
+        (item.completed ? "checked" : "") +
+        "/>" +
+        "<span data-id='" +
+        item.id +
+        "' class='item-name'>" +
+        item.content +
+        "</span>" +
+        "</div>" +
+        "<button data-id='" +
+        item.id +
+        "' class='btn btn-danger remove'>delete</button>" +
+        "</div>"
+    );
+  };
 
-  // get initial JSON
-  var renderData = function () {
+  // AJAX GET, forEach renderItem
+  var getAndRenderData = function () {
     $("#list").empty();
     $.ajax({
       type: "GET",
       url: "https://altcademy-to-do-list-api.herokuapp.com/tasks?api_key=426",
       dataType: "json",
       success: function (response, textStatus) {
-        console.log("Loaded: " + textStatus);
-        //   Use to loop over data array and display
-        response.tasks.forEach(function (item) {
-          if (item.completed == false) {
-            isChecked = "";
-          } else isChecked = "checked";
-          console.log(item);
-          $("#list").append(
-            "<div class='row row-cols-auto align-items-center py-2'>" +
-              "<div class='flex-grow-1 item'>" +
-              "<input type='checkbox' class='check-item' />" +
-              "<span data-id='" +
-              item.id +
-              "' class='item-name'>" +
-              item.content +
-              "</span>" +
-              "</div>" +
-              "<button class='btn btn-danger remove'>delete</button>" +
-              "</div>"
-          );
-        });
+        // Run renderItem method on each
+        response.tasks.forEach((item) => renderItem(item));
       },
       error: function (request, textStatus, errorMessage) {
         console.log(errorMessage);
@@ -44,11 +46,9 @@ $(document).ready(function () {
     });
   };
 
-  // add item
-  $("#add-item").on("click", "button", function () {
-    console.log("clicked");
-    var itemName = $(".input-entry").val();
-    //AJAX request here
+  // AJAX POST
+  $("#add-item").on("submit", function (e) {
+    e.preventDefault();
     $.ajax({
       type: "POST",
       url: "https://altcademy-to-do-list-api.herokuapp.com/tasks?api_key=426",
@@ -56,12 +56,11 @@ $(document).ready(function () {
       dataType: "json",
       data: JSON.stringify({
         task: {
-          content: itemName,
+          content: $(".input-entry").val(),
         },
       }),
       success: function (response, textStatus) {
-        console.log(response);
-        renderData();
+        getAndRenderData();
       },
       error: function (request, textStatus, errorMessage) {
         console.log(errorMessage);
@@ -70,11 +69,10 @@ $(document).ready(function () {
     $(".input-entry").val("");
   });
 
-  // remove item
-  $("#list").on("click", "button.remove", function () {
+  // AJAX DELETE
+  $(document).on("click", ".remove", function () {
     // Note: Had an issue targetting dynamic elements after added. Solution was to target the parent element that holds the added items, and then to select the correct element as an argument.
     var itemId = $(this).prev().find(".item-name").data("id");
-    console.log(itemId);
     $.ajax({
       type: "DELETE",
       url:
@@ -82,8 +80,7 @@ $(document).ready(function () {
         itemId +
         "?api_key=426",
       success: function (response, textStatus) {
-        console.log("Delete: " + response);
-        renderData();
+        getAndRenderData();
       },
       error: function (request, textStatus, errorMessage) {
         console.log(errorMessage);
@@ -91,30 +88,27 @@ $(document).ready(function () {
     });
   });
 
-  // all checked items are crossed out
-  $("#list").on("click", ".check-item", function () {
-    var checked = $(this).prop("checked");
-    var itemId = $(this).next().data("id");
+  // AJAX PUT
+  $(document).on("change", ".check-item", function () {
+    // Note: Issue with changing the completed status on PUT request. Will not return saved value.
     $.ajax({
       type: "PUT",
       url:
         "https://altcademy-to-do-list-api.herokuapp.com/tasks/" +
-        itemId +
+        $(this).data("id") +
+        "/mark_" +
+        (this.checked ? "complete" : "active") +
         "?api_key=426",
       contentType: "application/json",
       dataType: "json",
-      data: JSON.stringify({
-        //change content here
-        completed: checked,
-      }),
       success: function (response, textStatus) {
-        console.log(textStatus);
-        renderData();
+        getAndRenderData();
       },
       error: function (request, textStatus, errorMessage) {
         console.log(errorMessage);
       },
     });
   });
-  renderData();
+
+  getAndRenderData();
 });
