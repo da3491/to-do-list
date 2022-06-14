@@ -5,3 +5,16 @@
 .btn {
   width: 70px;
 }
+
+#filter-btns > button:hover {
+  border: none;
+}
+
+#filter-btns > button:not(:hover) {
+  border: none;
+}
+
+.selected {
+  color: black;
+  font-weight: 600;
+}

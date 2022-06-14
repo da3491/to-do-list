@@ -6,6 +6,14 @@
 // {success:true,id:426}
 
 $(document).ready(function () {
+  var filterState;
+  $("#filter-btns").on("click", "button", function () {
+    filterState = this.id;
+    $(this).addClass("selected");
+    $(this).siblings().removeClass("selected");
+    getAndRenderData();
+  });
+
   // Adding html to display JSON data
   var renderItem = function (item) {
     $("#list").append(
@@ -13,7 +21,7 @@ $(document).ready(function () {
         "<div class='flex-grow-1 item'>" +
         "<input data-id='" +
         item.id +
-        "' type='checkbox' class='check-item' " +
+        "' type='checkbox' class='check-item me-3' " +
         (item.completed ? "checked" : "") +
         "/>" +
         "<span data-id='" +
@@ -37,8 +45,22 @@ $(document).ready(function () {
       url: "https://altcademy-to-do-list-api.herokuapp.com/tasks?api_key=426",
       dataType: "json",
       success: function (response, textStatus) {
-        // Run renderItem method on each
-        response.tasks.forEach((item) => renderItem(item));
+        switch (filterState) {
+          case "filter-active":
+            response.tasks
+              .filter((item) => item.completed == false)
+              .forEach((item) => renderItem(item));
+            break;
+          case "filter-completed":
+            response.tasks
+              .filter((item) => item.completed == true)
+              .forEach((item) => renderItem(item));
+            break;
+          case "filter-all":
+          default:
+            response.tasks.forEach((item) => renderItem(item));
+            break;
+        }
       },
       error: function (request, textStatus, errorMessage) {
         console.log(errorMessage);
